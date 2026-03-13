@@ -84,7 +84,7 @@ jobs:
 
       - name: Salin hasil extract ke repo tujuan
         run: |
-          # Hapus semua isi repo tujuan kecuali .git
+          # Hapus semua isi repo tujuanm kecuali .git
           find target_repo -mindepth 1 -not -path 'target_repo/.git*' -delete
 
           # Salin semua hasil extract
