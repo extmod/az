@@ -1,0 +1,106 @@
+name: Extract ZIP and Push to Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      zip_file:
+        description: 'Nama file ZIP (contoh: TachiyomiAZ-clean.zip)'
+        required: true
+        default: 'TachiyomiAZ-clean.zip'
+      target_repo:
+        description: 'Repo tujuan (contoh: username/NamaRepo)'
+        required: true
+        default: ''
+  push:
+    paths:
+      - '**.zip'
+
+jobs:
+  extract-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repo (yang berisi ZIP)
+        uses: actions/checkout@v4
+
+      - name: Tentukan nama file ZIP
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "zip_file=${{ github.event.inputs.zip_file }}" >> $GITHUB_OUTPUT
+            echo "target_repo=${{ github.event.inputs.target_repo }}" >> $GITHUB_OUTPUT
+          else
+            # Ambil file zip pertama yang berubah saat push
+            ZIP=$(git diff-tree --no-commit-id -r --name-only ${{ github.sha }} | grep '\.zip$' | head -n 1)
+            echo "zip_file=$ZIP" >> $GITHUB_OUTPUT
+            echo "target_repo=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validasi file ZIP ada
+        run: |
+          if [ ! -f "${{ steps.vars.outputs.zip_file }}" ]; then
+            echo "ERROR: File '${{ steps.vars.outputs.zip_file }}' tidak ditemukan!"
+            exit 1
+          fi
+          echo "File ZIP ditemukan: ${{ steps.vars.outputs.zip_file }}"
+
+      - name: Extract ZIP
+        run: |
+          mkdir -p extracted
+          unzip -q "${{ steps.vars.outputs.zip_file }}" -d extracted
+          echo "Isi setelah extract:"
+          ls -la extracted/
+
+      - name: Ratakan folder jika ada satu subfolder (misal TachiyomiAZ-master/)
+        run: |
+          # Jika hasil extract hanya berisi 1 folder, pindahkan isinya ke root
+          ITEMS=$(ls extracted/ | wc -l)
+          if [ "$ITEMS" -eq 1 ]; then
+            SUBDIR=$(ls extracted/)
+            echo "Meratakan subfolder: $SUBDIR"
+            mv extracted/$SUBDIR/* extracted/ 2>/dev/null || true
+            mv extracted/$SUBDIR/.* extracted/ 2>/dev/null || true
+            rmdir extracted/$SUBDIR 2>/dev/null || true
+          fi
+          echo "Struktur akhir:"
+          ls -la extracted/
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone repo tujuan
+        env:
+          TARGET_REPO: ${{ steps.vars.outputs.target_repo }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -z "$TARGET_REPO" ]; then
+            echo "ERROR: target_repo kosong. Untuk trigger push otomatis, set TARGET_REPO di secrets atau tambahkan input."
+            exit 1
+          fi
+          git clone https://x-access-token:${GH_PAT}@github.com/${TARGET_REPO}.git target_repo
+          echo "Repo tujuan berhasil di-clone: $TARGET_REPO"
+
+      - name: Salin hasil extract ke repo tujuan
+        run: |
+          # Hapus semua isi repo tujuan kecuali .git
+          find target_repo -mindepth 1 -not -path 'target_repo/.git*' -delete
+
+          # Salin semua hasil extract
+          cp -r extracted/. target_repo/
+          echo "File berhasil disalin ke repo tujuan"
+
+      - name: Commit dan Push
+        env:
+          TARGET_REPO: ${{ steps.vars.outputs.target_repo }}
+        run: |
+          cd target_repo
+          git add -A
+          if git diff --staged --quiet; then
+            echo "Tidak ada perubahan untuk di-commit."
+          else
+            git commit -m "chore: extract from ${{ steps.vars.outputs.zip_file }}"
+            git push origin main
+            echo "Push berhasil ke $TARGET_REPO"
+          fi
