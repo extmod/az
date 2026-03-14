@@ -175,7 +175,7 @@ class SettingsAdvancedController : SettingsController() {
                 summary = "Gabungkan URL layanan + URL gambar. Contoh: https://wsrv.nl/?url="
                 text = preferences.imageResizeUrl().get()
                 dialogTitle = "URL layanan resize gambar"
-                dialogMessage = "Kosongkan untuk menonaktifkan. URL gambar akan ditambahkan langsung di belakang URL layanan.\nContoh: https://wsrv.nl/?url="
+                dialogMessage = "⚠️ Fitur ini akan bentrok jika ekstensi sudah punya resize sendiri. Nonaktifkan dengan cara tekan lama pada nama ekstensi di halaman Sumber.⚠️"
 
                 onChange {
                     preferences.imageResizeUrl().set(it.toString().trim())
