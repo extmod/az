@@ -23,7 +23,7 @@ on:
       taskName:
         description: "build.gradle task name: assembleDebug, assembleRelease, etc."
         required: false
-        default: "assembleDevDebug"
+        default: "assembleStandardRelease"
 
 jobs:
   build:
