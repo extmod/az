@@ -220,7 +220,7 @@ abstract class HttpSource : CatalogueSource {
                 mangaDetailsParse(response).apply {
                     initialized = true
                     val prefs = Injekt.get<PreferencesHelper>()
-                    val resizeUrl = prefs.imageResizeUrl().get()
+                    val resizeUrl = prefs.imageCoverResizeUrl().get()
                     if (resizeUrl.isNotBlank() && thumbnail_url != null) {
                         thumbnail_url = resizeUrl + thumbnail_url
                     }
@@ -311,7 +311,7 @@ abstract class HttpSource : CatalogueSource {
 
     private fun applyThumbnailResize(mangasPage: MangasPage): MangasPage {
         val prefs = Injekt.get<PreferencesHelper>()
-        val resizeUrl = prefs.imageResizeUrl().get()
+        val resizeUrl = prefs.imageCoverResizeUrl().get()
         if (resizeUrl.isBlank()) return mangasPage
         val disabledSources = prefs.imageResizeDisabledSources().get()
         if (id.toString() in disabledSources) return mangasPage
