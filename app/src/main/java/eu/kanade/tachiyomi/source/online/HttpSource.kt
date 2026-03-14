@@ -282,8 +282,23 @@ abstract class HttpSource : CatalogueSource {
         return client.newCall(pageListRequest(chapter))
             .asObservableSuccess()
             .map { response ->
-                pageListParse(response)
+                val pages = pageListParse(response)
+                applyImageResize(pages)
             }
+    }
+
+    private fun applyImageResize(pages: List<Page>): List<Page> {
+        val resizeUrl = preferences.imageResizeUrl().get()
+        if (resizeUrl.isBlank()) return pages
+        val disabledSources = preferences.imageResizeDisabledSources().get()
+        if (id.toString() in disabledSources) return pages
+        return pages.map { page ->
+            if (page.imageUrl != null) {
+                page.apply { imageUrl = resizeUrl + imageUrl }
+            } else {
+                page
+            }
+        }
     }
 
     /**
