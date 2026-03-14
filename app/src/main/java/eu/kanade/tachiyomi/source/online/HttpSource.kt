@@ -122,7 +122,7 @@ abstract class HttpSource : CatalogueSource {
         return client.newCall(popularMangaRequest(page))
             .asObservableSuccess()
             .map { response ->
-                popularMangaParse(response)
+                applyThumbnailResize(popularMangaParse(response))
             }
     }
 
@@ -156,7 +156,7 @@ abstract class HttpSource : CatalogueSource {
         return client.newCall(searchMangaRequest(page, query, filters))
             .asObservableSuccess()
             .map { response ->
-                searchMangaParse(response)
+                applyThumbnailResize(searchMangaParse(response))
             }
     }
 
@@ -189,7 +189,7 @@ abstract class HttpSource : CatalogueSource {
         return client.newCall(latestUpdatesRequest(page))
             .asObservableSuccess()
             .map { response ->
-                latestUpdatesParse(response)
+                applyThumbnailResize(latestUpdatesParse(response))
             }
     }
 
@@ -217,7 +217,14 @@ abstract class HttpSource : CatalogueSource {
         return client.newCall(mangaDetailsRequest(manga))
             .asObservableSuccess()
             .map { response ->
-                mangaDetailsParse(response).apply { initialized = true }
+                mangaDetailsParse(response).apply {
+                    initialized = true
+                    val prefs = Injekt.get<PreferencesHelper>()
+                    val resizeUrl = prefs.imageResizeUrl().get()
+                    if (resizeUrl.isNotBlank() && thumbnail_url != null) {
+                        thumbnail_url = resizeUrl + thumbnail_url
+                    }
+                }
             }
     }
 
@@ -300,6 +307,20 @@ abstract class HttpSource : CatalogueSource {
                 page
             }
         }
+    }
+
+    private fun applyThumbnailResize(mangasPage: MangasPage): MangasPage {
+        val prefs = Injekt.get<PreferencesHelper>()
+        val resizeUrl = prefs.imageResizeUrl().get()
+        if (resizeUrl.isBlank()) return mangasPage
+        val disabledSources = prefs.imageResizeDisabledSources().get()
+        if (id.toString() in disabledSources) return mangasPage
+        mangasPage.mangas.forEach { manga ->
+            if (manga.thumbnail_url != null) {
+                manga.thumbnail_url = resizeUrl + manga.thumbnail_url
+            }
+        }
+        return mangasPage
     }
 
     /**
