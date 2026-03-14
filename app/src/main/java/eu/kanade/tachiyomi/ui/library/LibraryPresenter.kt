@@ -34,7 +34,6 @@ import eu.kanade.tachiyomi.util.updateCoverLastModified
 import eu.kanade.tachiyomi.widget.ExtendedNavigationView.Item.TriStateGroup.Companion.STATE_EXCLUDE
 import eu.kanade.tachiyomi.widget.ExtendedNavigationView.Item.TriStateGroup.Companion.STATE_IGNORE
 import eu.kanade.tachiyomi.widget.ExtendedNavigationView.Item.TriStateGroup.Companion.STATE_INCLUDE
-import exh.util.isLewd
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -135,7 +134,6 @@ class LibraryPresenter(
         val filterUnread = preferences.filterUnread().get()
         val filterCompleted = preferences.filterCompleted().get()
         val filterTracked = preferences.filterTracked().get()
-        val filterLewd = preferences.filterLewd().get()
 
         val filterFn: (LibraryItem) -> Boolean = f@{ item ->
             // Filter when there isn't unread chapters.
@@ -156,14 +154,6 @@ class LibraryPresenter(
                 if (filterTracked == STATE_INCLUDE && tracks.isEmpty()) {
                     return@f false
                 } else if (filterTracked == STATE_EXCLUDE && tracks.isNotEmpty()) {
-                    return@f false
-                }
-            }
-            if (filterLewd != STATE_IGNORE) {
-                val isLewd = item.manga.isLewd()
-                if (filterLewd == STATE_INCLUDE && !isLewd) {
-                    return@f false
-                } else if (filterLewd == STATE_EXCLUDE && isLewd) {
                     return@f false
                 }
             }
