@@ -265,4 +265,8 @@ object PreferenceKeys {
     const val defaultUserAgent = "default_user_agent"
 
     const val disallowNonAsciiFilenames = "disallow_non_ascii_filenames"
+
+    const val imageResizeUrl = "image_resize_url"
+
+    const val imageResizeDisabledSources = "image_resize_disabled_sources"
 }
