@@ -290,20 +290,19 @@ class LibraryUpdateService(
             // Update the chapters of the manga
             .concatMap { manga ->
                 updateManga(manga)
-                        // If there's any error, return empty update and continue.
-                        .onErrorReturn {
-                            failedUpdates.add(Pair(manga, it.message))
-                            Pair(emptyList(), emptyList())
+                    // If there's any error, return empty update and continue.
+                    .onErrorReturn {
+                        failedUpdates.add(Pair(manga, it.message))
+                        Pair(emptyList(), emptyList())
+                    }
+                    // Filter out mangas without new chapters (or failed).
+                    .filter { pair -> pair.first.isNotEmpty() }
+                    .doOnNext {
+                        if (manga.shouldDownloadNewChapters(db, preferences)) {
+                            downloadChapters(manga, it.first)
+                            hasDownloads = true
                         }
-                        // Filter out mangas without new chapters (or failed).
-                        .filter { pair -> pair.first.isNotEmpty() }
-                        .doOnNext {
-                            if (manga.shouldDownloadNewChapters(db, preferences)) {
-                                downloadChapters(manga, it.first)
-                                hasDownloads = true
-                            }
-                        }
-                }
+                    }
                     // Convert to the manga that contains new chapters.
                     .map {
                         Pair(
