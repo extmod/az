@@ -24,7 +24,7 @@
     <dimen name="text_small_body">14sp</dimen>
 
     <!--Nav header-->
-    <dimen name="navigation_drawer_header_height">220dp</dimen>
+    <dimen name="navigation_drawer_header_height">260dp</dimen>
     <dimen name="navigation_drawer_header_margin">41dp</dimen>
 
     <dimen name="bottom_sheet_width">0dp</dimen>
