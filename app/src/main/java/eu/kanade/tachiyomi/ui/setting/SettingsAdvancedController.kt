@@ -39,7 +39,6 @@ import eu.kanade.tachiyomi.util.system.MiuiUtil
 import eu.kanade.tachiyomi.util.system.isPackageInstalled
 import eu.kanade.tachiyomi.util.system.powerManager
 import eu.kanade.tachiyomi.util.system.toast
-import exh.debug.SettingsDebugController
 import exh.log.EHLogLevel
 import exh.source.BlacklistedSources
 import rx.Observable
@@ -170,6 +169,20 @@ class SettingsAdvancedController : SettingsController() {
                 }
             }
 
+            editTextPreference {
+                key = Keys.imageResizeUrl
+                title = "URL layanan resize gambar"
+                summary = "Gabungkan URL layanan + URL gambar. Contoh: https://wsrv.nl/?url="
+                text = preferences.imageResizeUrl().get()
+                dialogTitle = "URL layanan resize gambar"
+                dialogMessage = "Kosongkan untuk menonaktifkan. URL gambar akan ditambahkan langsung di belakang URL layanan.\nContoh: https://wsrv.nl/?url="
+
+                onChange {
+                    preferences.imageResizeUrl().set(it.toString().trim())
+                    true
+                }
+            }
+
             // <-- EXH
 
             preferenceCategory {
@@ -266,16 +279,6 @@ class SettingsAdvancedController : SettingsController() {
                     summary = "Hide extensions/sources that are incompatible with ${context.getString(
                         R.string.app_name
                     )}. Force-restart app after changing."
-                }
-
-                preference {
-                    title = "Open debug menu"
-                    summary =
-                        HtmlCompat.fromHtml(
-                            "DO NOT TOUCH THIS MENU UNLESS YOU KNOW WHAT YOU ARE DOING! <font color='red'>IT CAN CORRUPT YOUR LIBRARY!</font>",
-                            HtmlCompat.FROM_HTML_MODE_LEGACY
-                        )
-                    onClick { router.pushController(SettingsDebugController().withFadeTransaction()) }
                 }
             }
             // <-- EXH
