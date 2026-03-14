@@ -32,7 +32,6 @@ import eu.kanade.tachiyomi.util.shouldDownloadNewChapters
 import eu.kanade.tachiyomi.util.storage.getUriCompat
 import eu.kanade.tachiyomi.util.system.acquireWakeLock
 import eu.kanade.tachiyomi.util.system.isServiceRunning
-import exh.LIBRARY_UPDATE_EXCLUDED_SOURCES
 import rx.Observable
 import rx.Subscription
 import rx.schedulers.Schedulers
@@ -290,11 +289,7 @@ class LibraryUpdateService(
             .doOnNext { notifier.showProgressNotification(it, count.andIncrement, mangaToUpdate.size) }
             // Update the chapters of the manga
             .concatMap { manga ->
-                if (manga.source in LIBRARY_UPDATE_EXCLUDED_SOURCES) {
-                    // Ignore EXH manga, updating chapters for every manga will get you banned
-                    Observable.empty()
-                } else {
-                    updateManga(manga)
+                updateManga(manga)
                         // If there's any error, return empty update and continue.
                         .onErrorReturn {
                             failedUpdates.add(Pair(manga, it.message))
