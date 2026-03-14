@@ -2,7 +2,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="@dimen/navigation_drawer_header_height"
-             android:gravity="bottom"
              android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
@@ -12,10 +11,9 @@
         android:scaleType="centerCrop"/>
 
     <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="@dimen/navigation_drawer_header_margin"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
         android:background="#00000000"
         android:scaleType="centerCrop"
         android:src="@drawable/tachiyomi_circle"/>
