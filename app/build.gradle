@@ -94,7 +94,7 @@ android {
             dimension "default"
         }
         dev {
-            resConfigs "en", "xxhdpi"
+            resConfigs "xxhdpi"
             dimension "default"
         }
     }
