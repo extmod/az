@@ -687,6 +687,21 @@ class LibraryController(
         super.onDetach(view)
     }
 
+    override fun startReading(
+        manga: Manga,
+        adapter: LibraryCategoryAdapter
+    ) {
+        if (adapter.mode == SelectableAdapter.Mode.MULTI) {
+            toggleSelection(manga)
+            return
+        }
+        val activity = activity ?: return
+        val chapter = presenter.getFirstUnread(manga) ?: return
+        val intent = ReaderActivity.newIntent(activity, manga, chapter)
+        destroyActionModeIfNeeded()
+        startActivity(intent)
+    }
+
     private fun selectAllCategoryManga() {
         adapter?.categories?.getOrNull(binding.libraryPager.currentItem)?.id?.let {
             selectAllRelay.call(it)
