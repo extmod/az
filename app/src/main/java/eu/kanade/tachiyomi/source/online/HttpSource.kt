@@ -288,9 +288,10 @@ abstract class HttpSource : CatalogueSource {
     }
 
     private fun applyImageResize(pages: List<Page>): List<Page> {
-        val resizeUrl = preferences.imageResizeUrl().get()
+        val prefs = Injekt.get<PreferencesHelper>()
+        val resizeUrl = prefs.imageResizeUrl().get()
         if (resizeUrl.isBlank()) return pages
-        val disabledSources = preferences.imageResizeDisabledSources().get()
+        val disabledSources = prefs.imageResizeDisabledSources().get()
         if (id.toString() in disabledSources) return pages
         return pages.map { page ->
             if (page.imageUrl != null) {
