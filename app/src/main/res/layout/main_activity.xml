@@ -51,7 +51,7 @@
         android:fitsSystemWindows="true"
         android:theme="?attr/navigation_view_theme"
         app:headerLayout="@layout/navigation_header"
-        app:itemIconSize="28dp"
+        app:itemIconSize="24dp"
         app:itemTextAppearance="@style/TextAppearance.NavItem"
         app:menu="@menu/menu_navigation"/>
 
