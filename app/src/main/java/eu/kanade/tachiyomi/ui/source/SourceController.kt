@@ -163,20 +163,30 @@ class SourceController(bundle: Bundle? = null) :
         val item = adapter?.getItem(position) as? SourceItem ?: return
 
         val isPinned = item.header?.code?.equals(SourcePresenter.PINNED_KEY) ?: false
+        val resizeUrl = preferences.imageResizeUrl().get()
+        val disabledResizeSources = preferences.imageResizeDisabledSources().get()
+        val isResizeDisabled = item.source.id.toString() in disabledResizeSources
+
+        val menuItems = mutableListOf(
+            activity.getString(R.string.action_hide),
+            activity.getString(if (isPinned) R.string.action_unpin else R.string.action_pin)
+        )
+        if (resizeUrl.isNotBlank()) {
+            menuItems.add(
+                if (isResizeDisabled) "Aktifkan resize gambar" else "Nonaktifkan resize gambar"
+            )
+        }
 
         MaterialDialog(activity)
             .title(text = item.source.name)
             .listItems(
-                items =
-                listOf(
-                    activity.getString(R.string.action_hide),
-                    activity.getString(if (isPinned) R.string.action_unpin else R.string.action_pin)
-                ),
+                items = menuItems,
                 waitForPositiveButton = false
             ) { dialog, which, _ ->
                 when (which) {
                     0 -> hideCatalogue(item.source)
                     1 -> pinCatalogue(item.source, isPinned)
+                    2 -> toggleResizeSource(item.source, isResizeDisabled)
                 }
                 dialog.dismiss()
             }
@@ -202,6 +212,15 @@ class SourceController(bundle: Bundle? = null) :
         }
 
         presenter.updateSources()
+    }
+
+    private fun toggleResizeSource(source: Source, isCurrentlyDisabled: Boolean) {
+        val current = preferences.imageResizeDisabledSources().get()
+        if (isCurrentlyDisabled) {
+            preferences.imageResizeDisabledSources().set(current - source.id.toString())
+        } else {
+            preferences.imageResizeDisabledSources().set(current + source.id.toString())
+        }
     }
 
     /**
