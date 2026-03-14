@@ -21,7 +21,6 @@ import eu.kanade.tachiyomi.databinding.SourceComfortableGridItemBinding
 import eu.kanade.tachiyomi.databinding.SourceCompactGridItemBinding
 import eu.kanade.tachiyomi.source.SourceManager
 import eu.kanade.tachiyomi.widget.AutofitRecyclerView
-import exh.isNamespaceSource
 import exh.metadata.metadata.base.RaisedTag
 import exh.util.SourceTagsUtil.Companion.TAG_TYPE_EXCLUDE
 import exh.util.SourceTagsUtil.Companion.getRaisedTags
@@ -142,7 +141,7 @@ class LibraryItem(val manga: LibraryManga, private val libraryDisplayMode: Prefe
     private fun ehContainsGenre(constraint: String): Boolean {
         val genres = manga.getGenres()
         val raisedTags =
-            if (source?.isNamespaceSource() == true) {
+            if (false) {
                 manga.getRaisedTags(genres)
             } else {
                 null
