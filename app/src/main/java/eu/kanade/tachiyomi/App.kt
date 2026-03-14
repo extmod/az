@@ -36,7 +36,6 @@ import eu.kanade.tachiyomi.util.system.LocaleHelper
 import eu.kanade.tachiyomi.util.system.WebViewUtil
 import eu.kanade.tachiyomi.util.system.toast
 import exh.debug.DebugToggles
-import exh.log.CrashlyticsPrinter
 import exh.log.EHDebugModeOverlay
 import exh.log.EHLogLevel
 import exh.ui.lock.LockActivityDelegate
@@ -65,15 +64,6 @@ open class App : Application(), LifecycleObserver {
 
         workaroundAndroid7BrokenSSL()
 
-        // Debug tool; see https://fbflipper.com/
-        // SoLoader.init(this, false)
-        // if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
-        //     val client = AndroidFlipperClient.getInstance(this)
-        //     client.addPlugin(InspectorFlipperPlugin(this, DescriptorMapping.withDefaults()))
-        //     client.addPlugin(DatabasesFlipperPlugin(this))
-        //     client.start()
-        // }
-
         // Enforce WebView availability
         if (!WebViewUtil.supportsWebView(this)) {
             toast(R.string.information_webview_required, Toast.LENGTH_LONG)
@@ -90,8 +80,8 @@ open class App : Application(), LifecycleObserver {
 
         setupNotificationChannels()
         Realm.init(this)
-        GlobalScope.launch { deleteOldMetadataRealm() } // Delete old metadata DB (EH)
-        Reprint.initialize(this) // Setup fingerprint (EH)
+        GlobalScope.launch { deleteOldMetadataRealm() }
+        Reprint.initialize(this)
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == "releaseTest") && DebugToggles.ENABLE_DEBUG_OVERLAY.enabled) {
             setupDebugOverlay()
         }
@@ -103,7 +93,6 @@ open class App : Application(), LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onAppBackgrounded() {
-        // App in background
         LockActivityDelegate.willLock = true
     }
 
@@ -139,7 +128,6 @@ open class App : Application(), LifecycleObserver {
 
     override fun getPackageName(): String {
         try {
-            // Override the value passed as X-Requested-With in WebView requests
             val stackTrace = Thread.currentThread().stackTrace
             val isChromiumCall = stackTrace.any { trace ->
                 trace.className.lowercase() in setOf("org.chromium.base.buildinfo", "org.chromium.base.apkinfo") &&
@@ -155,7 +143,6 @@ open class App : Application(), LifecycleObserver {
         Notifications.createChannels(this)
     }
 
-    // EXH
     private fun deleteOldMetadataRealm() {
         val config =
             RealmConfiguration.Builder()
@@ -165,7 +152,6 @@ open class App : Application(), LifecycleObserver {
                 .build()
         Realm.deleteRealm(config)
 
-        // Delete old paper db files
         listOf(
             File(filesDir, "gallery-ex"),
             File(filesDir, "gallery-perveden"),
@@ -179,7 +165,6 @@ open class App : Application(), LifecycleObserver {
         }
     }
 
-    // EXH
     private fun setupExhLogging() {
         EHLogLevel.init(this)
 
@@ -224,11 +209,6 @@ open class App : Application(), LifecycleObserver {
                 .backupStrategy(NeverBackupStrategy())
                 .build()
 
-        // Install Crashlytics in prod
-        if (!BuildConfig.DEBUG) {
-            printers += CrashlyticsPrinter(LogLevel.ERROR)
-        }
-
         XLog.init(
             logConfig,
             *printers.toTypedArray()
@@ -237,7 +217,6 @@ open class App : Application(), LifecycleObserver {
         XLog.d("Application booting...")
     }
 
-    // EXH
     private fun setupDebugOverlay() {
         try {
             DebugOverlay.Builder(this)
@@ -248,7 +227,6 @@ open class App : Application(), LifecycleObserver {
                 .build()
                 .install()
         } catch (e: IllegalStateException) {
-            // Crashes if app is in background
             XLog.e("Failed to initialize debug overlay, app in background?", e)
         }
     }
