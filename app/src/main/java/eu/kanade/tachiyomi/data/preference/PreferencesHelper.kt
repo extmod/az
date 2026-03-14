@@ -408,4 +408,8 @@ class PreferencesHelper(val context: Context) {
     fun extensionRepos() = flowPrefs.getStringSet(Keys.extensionRepos, emptySet())
 
     fun disallowNonAsciiFilenames() = flowPrefs.getBoolean(Keys.disallowNonAsciiFilenames, false)
+
+    fun imageResizeUrl() = flowPrefs.getString(Keys.imageResizeUrl, "")
+
+    fun imageResizeDisabledSources() = flowPrefs.getStringSet(Keys.imageResizeDisabledSources, emptySet())
 }
