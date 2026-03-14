@@ -32,9 +32,7 @@ subprojects {
         outputToConsole.set(true)
         ignoreFailures.set(false)
         enableExperimentalRules.set(true)
-
         disabledRules.set(setOf("standard:comment-wrapping", "experimental:comment-wrapping", "standard:enum-entry-name-case"))
-
         filter {
             exclude("**/generated/**")
             include("**/kotlin/**")
@@ -45,16 +43,10 @@ subprojects {
 buildscript {
     dependencies {
         classpath("com.github.ben-manes:gradle-versions-plugin:0.52.0")
-        classpath("com.google.gms:google-services:4.4.4")
         classpath("com.google.android.gms:oss-licenses-plugin:0.10.10")
         classpath(kotlin("serialization", version = "1.9.22"))
         // Realm (EH)
         classpath("io.realm:realm-gradle-plugin:10.19.0")
-
-        // Firebase (EH)
-        //classpath("io.fabric.tools:gradle:1.31.2")
-        classpath ("com.google.firebase:firebase-crashlytics-gradle:3.0.6")
-
     }
     repositories {
         google()
