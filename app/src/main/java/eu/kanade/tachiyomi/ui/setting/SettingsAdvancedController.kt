@@ -171,14 +171,28 @@ class SettingsAdvancedController : SettingsController() {
 
             editTextPreference {
                 key = Keys.imageResizeUrl
-                title = "URL layanan resize gambar"
+                title = "URL layanan resize gambar (page)"
                 summary = "Gabungkan URL layanan + URL gambar. Contoh: https://wsrv.nl/?url="
                 text = preferences.imageResizeUrl().get()
-                dialogTitle = "URL layanan resize gambar"
+                dialogTitle = "URL layanan resize gambar (page)"
                 dialogMessage = "⚠️ Fitur ini akan bentrok jika ekstensi sudah punya resize sendiri. Nonaktifkan dengan cara tekan lama pada nama ekstensi di halaman Sumber.⚠️"
 
                 onChange {
                     preferences.imageResizeUrl().set(it.toString().trim())
+                    true
+                }
+            }
+
+            editTextPreference {
+                key = Keys.imageCoverResizeUrl
+                title = "URL layanan resize cover"
+                summary = "Gabungkan URL layanan + URL cover. Contoh: https://wsrv.nl/?url="
+                text = preferences.imageCoverResizeUrl().get()
+                dialogTitle = "URL layanan resize cover"
+                dialogMessage = "Kosongkan untuk menonaktifkan. URL cover akan ditambahkan langsung di belakang URL layanan."
+
+                onChange {
+                    preferences.imageCoverResizeUrl().set(it.toString().trim())
                     true
                 }
             }
