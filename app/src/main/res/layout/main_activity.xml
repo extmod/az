@@ -53,7 +53,6 @@
         app:headerLayout="@layout/navigation_header"
         app:itemIconSize="28dp"
         app:itemTextAppearance="@style/TextAppearance.NavItem"
-        app:itemVerticalPadding="12dp"
         app:menu="@menu/menu_navigation"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
