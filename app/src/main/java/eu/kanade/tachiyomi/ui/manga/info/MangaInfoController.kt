@@ -412,6 +412,7 @@ class MangaInfoController(private val fromSource: Boolean = false) :
                 .load(mangaThumbnail)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .centerCrop()
+                .transform(BlurTransformation(25, 3))
                 .into(it)
         }
     }
