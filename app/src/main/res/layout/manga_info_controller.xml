@@ -35,11 +35,11 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:alpha="0.2"
-                app:layout_constraintBottom_toTopOf="@+id/guideline"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="@+id/manga_cover_card"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:background="@color/material_grey_700" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/manga_cover_card"
