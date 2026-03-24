@@ -4,6 +4,10 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -13,11 +17,14 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.palette.graphics.Palette
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.elvishew.xlog.XLog
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Category
-import jp.wasabeef.glide.transformations.BlurTransformation
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.glide.GlideApp
 import eu.kanade.tachiyomi.data.glide.toMangaThumbnail
@@ -408,14 +415,79 @@ class MangaInfoController(private val fromSource: Boolean = false) :
             .centerCrop()
             .into(binding.mangaCover)
 
-        binding.backdrop.let {
-            GlideApp.with(view.context)
-                .load(mangaThumbnail)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .centerCrop()
-                .transform(BlurTransformation(25, 3))
-                .into(it)
-        }
+        GlideApp.with(view.context)
+            .asBitmap()
+            .load(mangaThumbnail)
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+            .centerCrop()
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    // Set backdrop image
+                    binding.backdrop.setImageBitmap(resource)
+
+                    // Ekstrak warna dominan dari cover
+                    Palette.from(resource).generate { palette ->
+                        val dominantColor = palette?.getDominantColor(
+                            ContextCompat.getColor(view.context, android.R.color.black)
+                        ) ?: return@generate
+
+                        // Gelapkan sedikit warna agar lebih enak dilihat
+                        val darkenedColor = darkenColor(dominantColor, 0.7f)
+
+                        // Terapkan ke background halaman
+                        binding.root.setBackgroundColor(darkenedColor)
+
+                        // Terapkan warna ke tab dan toolbar via MangaController
+                        (parentController as? MangaController)?.applyThemeColor(darkenedColor)
+
+                        // Terapkan ke FAB
+                        binding.fabFavorite.backgroundTintList =
+                            ColorStateList.valueOf(darkenedColor)
+
+                        // Sesuaikan warna teks agar tetap terbaca
+                        val textColor = if (isColorDark(darkenedColor)) Color.WHITE else Color.BLACK
+                        val secondaryTextColor = if (isColorDark(darkenedColor)) {
+                            Color.argb(180, 255, 255, 255)
+                        } else {
+                            Color.argb(180, 0, 0, 0)
+                        }
+
+                        binding.mangaFullTitle.setTextColor(textColor)
+                        binding.mangaArtist.setTextColor(secondaryTextColor)
+                        binding.mangaArtistLabel.setTextColor(secondaryTextColor)
+                        binding.mangaAuthor.setTextColor(secondaryTextColor)
+                        binding.mangaAuthorLabel.setTextColor(secondaryTextColor)
+                        binding.mangaStatus.setTextColor(secondaryTextColor)
+                        binding.mangaStatusLabel.setTextColor(secondaryTextColor)
+                        binding.mangaSource.setTextColor(secondaryTextColor)
+                        binding.mangaSourceLabel.setTextColor(secondaryTextColor)
+                        binding.mangaChapters.setTextColor(secondaryTextColor)
+                        binding.mangaChaptersLabel.setTextColor(secondaryTextColor)
+                        binding.mangaLastUpdate.setTextColor(secondaryTextColor)
+                        binding.mangaLastUpdateLabel.setTextColor(secondaryTextColor)
+                        binding.mangaSummaryLabel.setTextColor(textColor)
+                        binding.mangaSummary.setTextColor(secondaryTextColor)
+                    }
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    binding.backdrop.setImageDrawable(placeholder)
+                }
+            })
+    }
+
+    private fun darkenColor(color: Int, factor: Float): Int {
+        val r = (Color.red(color) * factor).toInt().coerceIn(0, 255)
+        val g = (Color.green(color) * factor).toInt().coerceIn(0, 255)
+        val b = (Color.blue(color) * factor).toInt().coerceIn(0, 255)
+        return Color.rgb(r, g, b)
+    }
+
+    private fun isColorDark(color: Int): Boolean {
+        val darkness = 1 - (0.299 * Color.red(color) +
+            0.587 * Color.green(color) +
+            0.114 * Color.blue(color)) / 255
+        return darkness >= 0.5
     }
 
     /**
