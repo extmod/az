@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.ui.manga
 
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -229,6 +230,27 @@ class MangaController : RxController<MangaControllerBinding>, TabbedController {
             return tabTitles[position]
         }
     }
+
+    // AZ --> Smart Background color theming
+    fun applyThemeColor(color: Int) {
+        val activity = activity as MainActivity? ?: return
+        val tabs = activity.binding.tabs
+        val toolbar = activity.binding.toolbar
+        val appbar = activity.binding.appbar
+
+        // Warna tab background
+        tabs.setBackgroundColor(color)
+        tabs.setTabTextColors(
+            android.graphics.Color.argb(150, 255, 255, 255),
+            android.graphics.Color.WHITE
+        )
+        tabs.setSelectedTabIndicatorColor(android.graphics.Color.WHITE)
+
+        // Warna toolbar
+        toolbar.setBackgroundColor(color)
+        appbar.setBackgroundColor(color)
+    }
+    // AZ <--
 
     companion object {
         const val UPDATE_EXTRA = "update"
